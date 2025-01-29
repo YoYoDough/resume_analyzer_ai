@@ -1,4 +1,4 @@
-import "./globals.css";
+import "../styles/globals.css"
 
 export const metadata = {
   title: "Gaming Clips AI model",
@@ -8,8 +8,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body
-        className={``}
+      <body className = "bg-black"
       >
         {children}
       </body>

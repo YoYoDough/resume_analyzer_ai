@@ -11,6 +11,9 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      fontFamily: {
+        clash: ["ClashDisplay-Regular", "sans-serif"], // Add this line
+      },
     },
   },
   plugins: [],
