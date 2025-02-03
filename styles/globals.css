@@ -21,7 +21,7 @@ body {
 
 main{
   height: 100lvh;
-  background-image: url("/robot.png");
+  background-image: url("/robot.png"), linear-gradient(to right, black, #1e0b3b);
   background-size: 80lvh;
   background-repeat: no-repeat;
   background-position-x: right;
