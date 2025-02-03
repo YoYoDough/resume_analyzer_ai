@@ -8,6 +8,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+        <link href="https://api.fontshare.com/css?f[]=clash-display@400,700&display=swap" rel="stylesheet"></link>
+      </head>
       <body className = "bg-black"
       >
         {children}
