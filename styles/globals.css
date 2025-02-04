@@ -51,6 +51,10 @@ main{
   color: #ffffff;
 }
 
+.bg-custom-gradient {
+  background: linear-gradient(to right, #8A4CEF, #460F9E);
+}
+
 .welcome{
   width: 656px;
 }
