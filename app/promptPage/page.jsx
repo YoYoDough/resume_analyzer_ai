@@ -4,6 +4,8 @@ import { useState } from "react";
 const page = () => {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
+  const [analysis, setAnalysis] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
   // Handle file selection
   const handleFileChange = (e) => {
@@ -18,13 +20,31 @@ const page = () => {
   };
 
   // Handle file submission (placeholder function)
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (!file) {
       alert("No file selected!");
       return;
     }
     console.log("Uploading:", file.name);
+    
     // Here you'd send the file to your backend/AI model
+    const fileData = new FormData();
+
+    setUploading(true);
+
+    try {
+      const response = await fetch("http://localhost:5000/upload", {
+        method: "POST",
+        body: fileData,
+      })
+
+      const data = await response.json();
+      setAnalysis(data);
+    } catch (error) {
+      console.error("Couldn't send video file...", error)
+    } finally {
+      setUploading(true)
+    }
   };
 
   return (
