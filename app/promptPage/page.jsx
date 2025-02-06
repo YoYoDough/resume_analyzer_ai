@@ -69,6 +69,9 @@ const page = () => {
       >
         Submit for Analysis
       </button>
+
+      {uploading && <p className = "text-grey-400">Analyzing video...</p>}
+      {analysis && <p className = "text-green-400">Feedback: {analysis}</p>}
     </div>
   );
 };
