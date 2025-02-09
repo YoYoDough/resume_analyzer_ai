@@ -1,7 +1,7 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-# gaming_clips_ai
-A platform where users can send in their gaming clips and AI will collect data from them to give feedback to the users.
+# resume_analyzer_ai
+A platform where users can send in their resume and AI will collect data from them to give feedback to the users.
 
 ## Getting Started
 

@@ -33,7 +33,7 @@ const page = () => {
     setUploading(true);
 
     try {
-      const response = await fetch("http://localhost:5000/upload", {
+      const response = await fetch("http://localhost:8080/upload", {
         method: "POST",
         body: fileData,
       })
@@ -49,12 +49,12 @@ const page = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen text-white p-6">
-      <h1 className="text-3xl font-bold mb-4">Upload Your Gaming Clip</h1>
-      <p className="text-gray-400 mb-6">AI will analyze your gameplay and provide insights.</p>
+      <h1 className="text-3xl font-bold mb-4">Upload Your Resume</h1>
+      <p className="text-gray-400 mb-6">AI will analyze your resume and provide insights.</p>
 
       <label className="w-96 h-48 flex items-center justify-center border-2 border-dashed border-gray-500 rounded-lg cursor-pointer bg-gray-800 hover:bg-gray-700 transition">
         <input type="file" className="hidden" accept="video/*" onChange={handleFileChange} />
-        <span className="text-gray-300">Click or Drag & Drop to Upload Video</span>
+        <span className="text-gray-300">Click or Drag & Drop to Upload Resume</span>
       </label>
 
       {preview && (
@@ -70,7 +70,7 @@ const page = () => {
         Submit for Analysis
       </button>
 
-      {uploading && <p className = "text-grey-400">Analyzing video...</p>}
+      {uploading && <p className = "text-grey-400">Analyzing resume...</p>}
       {analysis && <p className = "text-green-400">Feedback: {analysis}</p>}
     </div>
   );
