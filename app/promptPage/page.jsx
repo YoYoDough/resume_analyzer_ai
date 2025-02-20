@@ -46,6 +46,8 @@ const page = () => {
     }
   };
 
+  //there will also be a value attached to the resume like $120,000/year for a specific field
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen text-white p-6">
       <h1 className="text-3xl font-bold mb-4">Upload Your Resume</h1>
