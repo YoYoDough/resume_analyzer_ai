@@ -27,14 +27,14 @@ const page = () => {
     
     // Here you'd send the file to your backend/AI model
     const formData = new FormData();
-    formData.append("resume", selectedFile)
+    formData.append("resume", file)
 
     setUploading(true);
 
     try {
       const response = await fetch("http://localhost:5000/upload", {
         method: "POST",
-        body: fileData,
+        body: formData,
       })
 
       const data = await response.json();
