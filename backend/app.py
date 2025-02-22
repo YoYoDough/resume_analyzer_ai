@@ -27,6 +27,7 @@ def extract_file(file_path):
         page_text = page.extract_text()
         if page_text:
             full_resume_text += page_text + "\n"
+
     return full_resume_text
 
 def analyze_text(resume):
@@ -37,32 +38,29 @@ def analyze_text(resume):
         f"{resume}\n\n"
         "Provide your answer in the following format:\n"
         "Analysis: <your analysis here>\n"
-        "Salary Estimate: <your salary estimate here>\n")
-
-    response = openai.chat.completions.create(
-        model="gpt-4o",
-        messages=[
-            {
-                "role": "user",
-                "content": prompt,
-            },
-        ],
+        "Salary Estimate: <your salary estimate here>\n"
     )
 
-    result = response.choices[0].message.content
-    
-    # Initialize variables to hold parsed output
-    analysis_text = ""
-    salary_estimate = ""
+    try:
+        response = openai.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": prompt}],
+        )
 
-    # Parse the result into analysis and salary estimate lines
-    for line in result.split("\n"):
-        if line.startswith("Analysis:"):
-            analysis_text = line[len("Analysis:"):].strip()
-        elif line.startswith("Salary Estimate:"):
-            salary_estimate = line[len("Salary Estimate:"):].strip()
+        result = response.choices[0].message.content
 
-    return analysis_text, salary_estimate
+        # Regex to safely extract Analysis and Salary Estimate
+        analysis_match = re.search(r"Analysis:\s*(.*?)(?:\n|$)", result, re.DOTALL)
+        salary_match = re.search(r"Salary Estimate:\s*\$?([\d,]+)", result)
+
+        analysis_text = analysis_match.group(1).strip() if analysis_match else "No analysis provided."
+        salary_estimate = salary_match.group(1).strip() if salary_match else "N/A"
+
+        return analysis_text, salary_estimate
+
+    except Exception as e:
+        print(f"Error analyzing text: {e}")
+        return "Error analyzing resume.", "N/A"
     
 @app.route('/upload', methods = ["POST"])
 def upload_file():
