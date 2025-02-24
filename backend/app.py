@@ -3,17 +3,26 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from pypdf import PdfReader
 from dotenv import load_dotenv, find_dotenv
-import os, openai
+from openai import OpenAI
+import re
+import os
 
 # Automatically find and load the .env file from the project root
 load_dotenv(find_dotenv())
 
-# Retrieve and configure the openai API key securely
-openai.api_key = os.getenv("OPENAI_API_KEY")
 
-if not openai.api_key:
+# Retrieve and configure the openai API key securely
+ai_api_key = os.getenv("OPENAI_API_KEY")
+endpoint = "https://models.inference.ai.azure.com"
+model_name = "gpt-4o"
+
+if not ai_api_key:
     raise ValueError("No OPENAI_API_KEY found in environment variables.")
 
+client = OpenAI(
+    base_url = endpoint,
+    api_key = ai_api_key,
+)
 
 app = Flask(__name__)
 CORS(app)
@@ -42,16 +51,28 @@ def analyze_text(resume):
     )
 
     try:
-        response = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": prompt}],
+        response = client.chat.completions.create(
+            model=model_name,
+            temperature=1.0,
+            top_p=1.0,
+            max_tokens=1000,
+            messages=[
+                {
+                    "role": "user", 
+                    "content": prompt
+                }
+            ],
         )
 
         result = response.choices[0].message.content
 
-        # Regex to safely extract Analysis and Salary Estimate
-        analysis_match = re.search(r"Analysis:\s*(.*?)(?:\n|$)", result, re.DOTALL)
-        salary_match = re.search(r"Salary Estimate:\s*\$?([\d,]+)", result)
+        print("Raw AI Response:\n", result)
+
+        # Updated regex to handle optional asterisks and spaces
+        analysis_match = re.search(r"\*?\*?Analysis:\*?\*?\s*(.*?)(?:\n\*?\*?Salary Estimate:|\Z)", result, re.DOTALL)
+        salary_match = re.search(r"\*?\*?Salary Estimate:\*?\*?\s*\$?([\d,]+)", result, re.IGNORECASE)
+        
+
 
         analysis_text = analysis_match.group(1).strip() if analysis_match else "No analysis provided."
         salary_estimate = salary_match.group(1).strip() if salary_match else "N/A"
@@ -86,7 +107,7 @@ def upload_file():
     # Clean up the temporary file
     os.remove(file_path)
     
-
+    print(analysis_text)
     return jsonify({
         "message": "File uploaded and analyzed successfully.",
         "analysis": analysis_text,

@@ -41,6 +41,7 @@ const page = () => {
       })
 
       const data = await response.json();
+      console.log(data)
       setAnalysis(data);
     } catch (error) {
       console.error("Couldn't send resume file...", error)
@@ -50,6 +51,7 @@ const page = () => {
   };
 
   //there will also be a value attached to the resume like $120,000/year for a specific field
+  console.log(analysis)
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen text-white p-6">
@@ -85,7 +87,12 @@ const page = () => {
       
 
       {uploading && <p className = "text-grey-200">Analyzing resume...</p>}
-      {analysis && <p className = "text-green-400">Feedback: {analysis}</p>}
+      {analysis && (
+        <>
+          <p className = "text-yellow-400 font-bold text-3xl"> Salary Estimate: {analysis.salary_estimate}</p>
+          <p className = "text-green-400">Feedback: {analysis.analysis}</p>
+        </>
+        )}
     </div>
   );
 };
