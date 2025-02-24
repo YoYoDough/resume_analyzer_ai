@@ -89,7 +89,7 @@ const page = () => {
       {uploading && <p className = "text-grey-200">Analyzing resume...</p>}
       {analysis && (
         <>
-          <p className = "text-yellow-400 font-bold text-3xl"> Salary Estimate: {analysis.salary_estimate}</p>
+          <p className = "text-yellow-400 font-bold text-3xl"> Salary Estimate: ${analysis.salary_estimate}</p>
           <p className = "text-green-400">Feedback: {analysis.analysis}</p>
         </>
         )}
