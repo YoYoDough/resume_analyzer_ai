@@ -91,3 +91,7 @@ input::placeholder{
   background: linear-gradient(to right, #6E27E0, #460F9E);
   border-radius: 18.55px;
 }
+
+.analysis{
+  font-family: 'Poppins', Arial, Helvetica, sans-serif;
+}

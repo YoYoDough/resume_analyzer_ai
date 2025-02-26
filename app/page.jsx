@@ -1,5 +1,6 @@
 import Image from "next/image";
 import LandingPageNav from "@/components/LandingPageNav";
+import Link from "next/link";
 
 //this is going to be place where users can input clips and get AI analysis
 
@@ -16,7 +17,7 @@ export default function Home() {
 
         <div>
           <input type = "email" placeholder = "Enter email" className = "enter-email"></input>
-          <button className = "get-started-button font-regular text-xl">Get Started</button>
+          <Link href = "promptPage"><button className = "get-started-button font-regular text-xl">Get Started</button></Link>
         </div>
       </div>
     </main>

@@ -6,6 +6,7 @@ const page = () => {
   const [analysis, setAnalysis] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [progress, setProgress] = useState(0);
   console.log(file)
 
   // Handle file selection
@@ -33,25 +34,76 @@ const page = () => {
     formData.append("resume", file)
 
     setUploading(true);
+    setProgress(20)
 
     try {
       const response = await fetch("http://localhost:5000/upload", {
         method: "POST",
         body: formData,
       })
+      setProgress(50) //halfway waiting for AI response
 
       const data = await response.json();
+      const structuredAnalysis = parseAnalysis(data.analysis);
+      console.log("Parsed Analysis:", structuredAnalysis);  // Debugging line
+      setProgress(80) //AI result is a almost set
       console.log(data)
-      setAnalysis(data);
+      setAnalysis({
+        ...data,
+        structuredAnalysis,
+      });
     } catch (error) {
       console.error("Couldn't send resume file...", error)
     } finally {
-      setUploading(true)
+      setProgress(100) //AI result should be displayed at this point
+      setTimeout(() => {
+        setUploading(false);
+        setProgress(0); // Reset after loading completes
+      }, 1000);
     }
   };
 
   //there will also be a value attached to the resume like $120,000/year for a specific field
   console.log(analysis)
+
+  const parseAnalysis = (text) => {
+    if (!text) return { insights: [], strengths: [], improvements: [], suggestions: [], salary: "" };
+
+    console.log("Parsing Text:", text); // Debugging
+
+    const structuredData = {
+      insights: [],
+      strengths: [],
+      improvements: [],
+      suggestions: [],
+    };
+
+    const sections = text.split(/\n\n/); // Split by double line breaks
+
+    sections.forEach((section) => {
+      const lowerSection = section.toLowerCase();
+
+      if (lowerSection.includes("key insights")) {
+        structuredData.insights = extractBulletPoints(section);
+      } else if (lowerSection.includes("strengths")) {
+        structuredData.strengths = extractBulletPoints(section);
+      } else if (lowerSection.includes("areas for improvement")) {
+        structuredData.improvements = extractBulletPoints(section);
+      } else if (lowerSection.includes("additional suggestions")) {
+        structuredData.suggestions = extractBulletPoints(section);
+      } 
+    });
+
+  
+    return structuredData;
+  };
+  
+  const extractBulletPoints = (section) => {
+    return section
+      .split("\n")
+      .filter((line) => line.startsWith("-")) // Extract bullet points
+      .map((line) => line.replace("-", "").trim());
+  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen text-white p-6">
@@ -64,12 +116,12 @@ const page = () => {
       </label>}
 
       {previewUrl && (
-        <div className = "mt-5 w-full flex flex-col items-center">
+        <div className = "mt-3 w-full flex flex-col items-center">
           <div className = "w-full mt-4 md:w-3/4 lg:w-2/3 xl:w-1/2">
             <h3 className = "text-lg font-bold mb-2">PDF Preview:</h3>
             <iframe
               src={previewUrl}
-              className = "w-full h-[60vh] md:h-[70vh] border border-gray-300 rounded-lg"
+              className = "w-full h-[40vh] md:h-[70vh] border border-gray-300 rounded-lg"
               title="PDF Preview"
               style={{ overflow: "hidden" }}
             ></iframe>
@@ -77,9 +129,19 @@ const page = () => {
         </div>
       )}
 
+      {uploading && (
+        <div className="w-96 bg-gray-300 rounded-md mt-3">
+          <div
+            className="bg-green-500 h-10 rounded-md"
+            style={{ width: `${progress}%`, transition: "width 1s ease-in-out" }}
+          ></div>
+        </div>
+      )}
+
       <button
         onClick={handleUpload}
         className="mt-6 bg-custom-gradient px-6 py-2 rounded-lg text-white font-regular"
+        disabled = {uploading}
       >
         Submit for Analysis
       </button>
@@ -88,10 +150,10 @@ const page = () => {
 
       {uploading && <p className = "text-grey-200">Analyzing resume...</p>}
       {analysis && (
-        <>
-          <p className = "text-yellow-400 font-bold text-3xl"> Salary Estimate: ${analysis.salary_estimate}</p>
-          <p className = "text-green-400">Feedback: {analysis.analysis}</p>
-        </>
+        <div className = "mt-4 flex flex-col">
+          <p className = "text-yellow-400 font-bold text-6xl self-center"> Salary Estimate: ${analysis.salary_estimate}/year</p>
+          <p className = "analysis text-white-400 mt-6">Feedback: {analysis.analysis}</p>
+        </div>
         )}
     </div>
   );
