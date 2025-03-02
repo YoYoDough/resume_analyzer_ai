@@ -6,6 +6,7 @@ from dotenv import load_dotenv, find_dotenv
 from openai import OpenAI
 import re
 import os
+import json
 
 # Automatically find and load the .env file from the project root
 load_dotenv(find_dotenv())
@@ -42,15 +43,16 @@ def extract_file(file_path):
 def analyze_text(resume):
     # prompt to analyze resume goes here, we're going to use openai.Complete
     prompt = (
-        "Analyze the following resume and provide an assessment in two structured sections: \n\n"
-        "1. **Key Insights** – Highlight the candidate's strengths, notable experiences, and technical skills.\n"
-        "2. **What to Improve On** – Provide constructive feedback on areas where the resume could be improved.\n\n"
-        "Additionally, based on the candidate's skills, experience, and qualifications, provide an estimated salary value in USD as a number on a separate line prefixed with 'Salary Estimate:'.\n\n"
-        f"{resume}\n\n"
-        "Provide your answer in the following format:\n\n"
-        "**Key Insights:**\n<your key insights here>\n\n"
-        "**What to Improve On:**\n<your improvement suggestions here>\n\n"
-        "Salary Estimate: <your salary estimate here>\n"
+        "Analyze the following resume and return a structured JSON object with three fields: "
+        "`key_insights`, `improvements`, and `salary_estimate`.\n\n"
+        "Format:\n"
+        "{\n"
+        '  "key_insights": ["<bullet point 1>", "<bullet point 2>", "..."],\n'
+        '  "improvements": ["<bullet point 1>", "<bullet point 2>", "..."],\n'
+        '  "salary_estimate": "<numeric value>"\n'
+        "}\n\n"
+        f"Resume:\n{resume}\n\n"
+        "Return only the JSON object, without any explanation or formatting."
     )
 
     try:
@@ -67,21 +69,11 @@ def analyze_text(resume):
             ],
         )
 
-        result = response.choices[0].message.content
+        result = response.choices[0].message.content.strip()
 
-        print("Raw AI Response:\n", result)
+        structured_response = json.loads(result)
 
-        # Updated regex to extract "Key Insights" and "What to Improve On"
-        key_insights_match = re.search(r"\*?\*?Key Insights:\*?\*?\s*(.*?)(?:\n\*?\*?What to Improve On:|\Z)", result, re.DOTALL)
-        improvements_match = re.search(r"\*?\*?What to Improve On:\*?\*?\s*(.*?)(?:\n\*?\*?Salary Estimate:|\Z)", result, re.DOTALL)
-        salary_match = re.search(r"\*?\*?Salary Estimate:\*?\*?\s*\$?([\d,]+)", result, re.IGNORECASE)
-
-        # Extracting the matched groups
-        key_insights = key_insights_match.group(1).strip() if key_insights_match else "No key insights provided."
-        improvements = improvements_match.group(1).strip() if improvements_match else "No improvement suggestions provided."
-        salary_estimate = salary_match.group(1).strip() if salary_match else "N/A"
-
-        return key_insights, improvements, salary_estimate
+        return structured_response
 
     except Exception as e:
         print(f"Error analyzing text: {e}")
@@ -106,18 +98,15 @@ def upload_file():
     resume_text = extract_file(file_path)
 
     # Analyze the resume text with OpenAI
-    key_insights, improvements, salary_estimate = analyze_text(resume_text)
+    structured_response = analyze_text(resume_text)
 
     # Clean up the temporary file
     os.remove(file_path)
     
-    print(key_insights, improvements)
     return jsonify({
         "message": "File uploaded and analyzed successfully.",
         "filename": file.filename,
-        "key_insights": key_insights,
-        "improvements": improvements,
-        "salary_estimate": salary_estimate
+        "analysis": structured_response
     })
 
 if __name__ == "__main__":

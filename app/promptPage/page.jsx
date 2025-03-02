@@ -45,14 +45,9 @@ const page = () => {
       setProgress(50) //halfway waiting for AI response
 
       const data = await response.json();
-      const structuredAnalysis = parseAnalysis(data.analysis);
-      console.log("Parsed Analysis:", structuredAnalysis);  // Debugging line
       setProgress(80) //AI result is a almost set
       console.log(data)
-      setAnalysis({
-        ...data,
-        structuredAnalysis,
-      });
+      setAnalysis(data);
     } catch (error) {
       console.error("Couldn't send resume file...", error)
     } finally {
@@ -66,38 +61,6 @@ const page = () => {
 
   //there will also be a value attached to the resume like $120,000/year for a specific field
   console.log(analysis)
-
-  const parseAnalysis = (text) => {
-    if (!text) return { insights: [], strengths: [], improvements: [], suggestions: [], salary: "" };
-
-    console.log("Parsing Text:", text); // Debugging
-
-    const structuredData = {
-      keyInsights: [],
-      improvements: [],
-    };
-
-    const sections = text.split(/\n\n/); // Split by double line breaks
-
-    sections.forEach((section) => {
-      const lowerSection = section.toLowerCase();
-
-      if (lowerSection.includes("key insights")) {
-        structuredData.keyInsights = extractList(section);
-      } else if (lowerSection.includes("areas for improvement") || lowerSection.includes("what to improve on")) {
-        structuredData.improvements = extractList(section);
-      }
-    });
-  
-    return structuredData;
-  };
-  
-  const extractList = (section) => {
-    return section
-      .split("\n")
-      .filter((line) => line.match(/^\d+\./) || line.match(/^[-•]/)) // Matches both "1." and "-"
-      .map((line) => line.replace(/^\d+\.\s*|^[-•]\s*/, "").trim());
-  };
 
   const resetFile = () => {
     setFile(null)
@@ -162,15 +125,20 @@ const page = () => {
 
       {analysis && (
         <div className = "mt-4 flex flex-col">
-          <h2 className = "text-yellow-400 font-bold text-6xl self-center"> Salary Estimate: ${analysis.salary_estimate}/year</h2>
+          <h2 className = "text-yellow-400 font-bold text-6xl self-center"> Salary Estimate: ${analysis.analysis.salary_estimate}/year</h2>
           <section className = "flex gap-2 mt-6">
             <div className = "flex flex-col p-6">
               <h1 className = "text-white-400 font-bold text-4xl self-center">Key Insights</h1>
-              <p className = "analysis text-white-400 mt-6">{analysis.key_insights}</p>
+              <ul>
+                {analysis.analysis.key_insights.map(item, i => (
+                  <li>{item[i]}</li>
+                ))}
+              </ul>
+              <p className = "analysis text-white-400 mt-6">{}</p>
             </div>
             <div className = "flex flex-col p-6">
               <h1 className = "text-white-400 font-bold text-4xl self-center">What to Improve</h1>
-              <p className = "analysis text-white-400 mt-6">{analysis.improvements}</p>
+              <p className = "analysis text-white-400 mt-6">{}</p>
             </div>
           </section>
           
