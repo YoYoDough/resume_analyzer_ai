@@ -42,11 +42,14 @@ def extract_file(file_path):
 def analyze_text(resume):
     # prompt to analyze resume goes here, we're going to use openai.Complete
     prompt = (
-        "Analyze the following resume and provide key insights, skills, and suggestions for improvement.\n\n"
-        "Also, based on the candidate's skills, experience, and qualifications, provide an estimated salary value in USD as a number on a separate line prefixed with 'Salary Estimate:'.\n\n"
+        "Analyze the following resume and provide an assessment in two structured sections: \n\n"
+        "1. **Key Insights** – Highlight the candidate's strengths, notable experiences, and technical skills.\n"
+        "2. **What to Improve On** – Provide constructive feedback on areas where the resume could be improved.\n\n"
+        "Additionally, based on the candidate's skills, experience, and qualifications, provide an estimated salary value in USD as a number on a separate line prefixed with 'Salary Estimate:'.\n\n"
         f"{resume}\n\n"
-        "Provide your answer in the following format:\n"
-        "Analysis: <your analysis here>\n"
+        "Provide your answer in the following format:\n\n"
+        "**Key Insights:**\n<your key insights here>\n\n"
+        "**What to Improve On:**\n<your improvement suggestions here>\n\n"
         "Salary Estimate: <your salary estimate here>\n"
     )
 
@@ -68,16 +71,17 @@ def analyze_text(resume):
 
         print("Raw AI Response:\n", result)
 
-        # Updated regex to handle optional asterisks and spaces
-        analysis_match = re.search(r"\*?\*?Analysis:\*?\*?\s*(.*?)(?:\n\*?\*?Salary Estimate:|\Z)", result, re.DOTALL)
+        # Updated regex to extract "Key Insights" and "What to Improve On"
+        key_insights_match = re.search(r"\*?\*?Key Insights:\*?\*?\s*(.*?)(?:\n\*?\*?What to Improve On:|\Z)", result, re.DOTALL)
+        improvements_match = re.search(r"\*?\*?What to Improve On:\*?\*?\s*(.*?)(?:\n\*?\*?Salary Estimate:|\Z)", result, re.DOTALL)
         salary_match = re.search(r"\*?\*?Salary Estimate:\*?\*?\s*\$?([\d,]+)", result, re.IGNORECASE)
-        
 
-
-        analysis_text = analysis_match.group(1).strip() if analysis_match else "No analysis provided."
+        # Extracting the matched groups
+        key_insights = key_insights_match.group(1).strip() if key_insights_match else "No key insights provided."
+        improvements = improvements_match.group(1).strip() if improvements_match else "No improvement suggestions provided."
         salary_estimate = salary_match.group(1).strip() if salary_match else "N/A"
 
-        return analysis_text, salary_estimate
+        return key_insights, improvements, salary_estimate
 
     except Exception as e:
         print(f"Error analyzing text: {e}")
@@ -102,16 +106,17 @@ def upload_file():
     resume_text = extract_file(file_path)
 
     # Analyze the resume text with OpenAI
-    analysis_text, salary_estimate = analyze_text(resume_text)
+    key_insights, improvements, salary_estimate = analyze_text(resume_text)
 
     # Clean up the temporary file
     os.remove(file_path)
     
-    print(analysis_text)
+    print(key_insights, improvements)
     return jsonify({
         "message": "File uploaded and analyzed successfully.",
-        "analysis": analysis_text,
         "filename": file.filename,
+        "key_insights": key_insights,
+        "improvements": improvements,
         "salary_estimate": salary_estimate
     })
 

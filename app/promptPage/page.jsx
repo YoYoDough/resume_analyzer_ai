@@ -72,10 +72,8 @@ const page = () => {
     console.log("Parsing Text:", text); // Debugging
 
     const structuredData = {
-      insights: [],
-      strengths: [],
+      keyInsights: [],
       improvements: [],
-      suggestions: [],
     };
 
     const sections = text.split(/\n\n/); // Split by double line breaks
@@ -84,25 +82,20 @@ const page = () => {
       const lowerSection = section.toLowerCase();
 
       if (lowerSection.includes("key insights")) {
-        structuredData.insights = extractBulletPoints(section);
-      } else if (lowerSection.includes("strengths")) {
-        structuredData.strengths = extractBulletPoints(section);
-      } else if (lowerSection.includes("areas for improvement")) {
-        structuredData.improvements = extractBulletPoints(section);
-      } else if (lowerSection.includes("additional suggestions")) {
-        structuredData.suggestions = extractBulletPoints(section);
-      } 
+        structuredData.keyInsights = extractList(section);
+      } else if (lowerSection.includes("areas for improvement") || lowerSection.includes("what to improve on")) {
+        structuredData.improvements = extractList(section);
+      }
     });
-
   
     return structuredData;
   };
   
-  const extractBulletPoints = (section) => {
+  const extractList = (section) => {
     return section
       .split("\n")
-      .filter((line) => line.startsWith("-")) // Extract bullet points
-      .map((line) => line.replace("-", "").trim());
+      .filter((line) => line.match(/^\d+\./) || line.match(/^[-•]/)) // Matches both "1." and "-"
+      .map((line) => line.replace(/^\d+\.\s*|^[-•]\s*/, "").trim());
   };
 
   return (
@@ -151,8 +144,9 @@ const page = () => {
       {uploading && <p className = "text-grey-200">Analyzing resume...</p>}
       {analysis && (
         <div className = "mt-4 flex flex-col">
-          <p className = "text-yellow-400 font-bold text-6xl self-center"> Salary Estimate: ${analysis.salary_estimate}/year</p>
-          <p className = "analysis text-white-400 mt-6">Feedback: {analysis.analysis}</p>
+          <h2 className = "text-yellow-400 font-bold text-6xl self-center"> Salary Estimate: ${analysis.salary_estimate}/year</h2>
+          <p className = "analysis text-white-400 mt-6">{analysis.key_insights}</p>
+          <p className = "analysis text-white-400 mt-6">{analysis.improvements}</p>
         </div>
         )}
     </div>
