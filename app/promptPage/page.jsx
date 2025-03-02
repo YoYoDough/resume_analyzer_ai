@@ -1,4 +1,5 @@
 "use client"
+import Image from "next/image";
 import { useState } from "react";
 
 const page = () => {
@@ -98,8 +99,17 @@ const page = () => {
       .map((line) => line.replace(/^\d+\.\s*|^[-•]\s*/, "").trim());
   };
 
+  const resetFile = () => {
+    setFile(null)
+    setAnalysis(null)
+    setPreviewUrl(null)
+    setProgress(0)
+    setUploading(false)
+  }
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen text-white p-6">
+      <Image src = '/resumeimage.png' width = {100} height = {100} alt = "Resume Logo" className = " mb-4 rounded-lg"></Image>
       <h1 className="text-3xl font-bold mb-4">Upload Your Resume</h1>
       <p className="text-gray-400 mb-6">AI will analyze your resume and provide insights.</p>
 
@@ -108,7 +118,17 @@ const page = () => {
         <span className="text-gray-300">Click or Drag & Drop to Upload Resume</span>
       </label>}
 
-      {previewUrl && (
+      {uploading && (
+        <div className="w-96 bg-gray-400 rounded-md mt-3">
+          <h2>Analysing resume...</h2>
+          <div
+            className="bg-green-500 h-10 rounded-md"
+            style={{ width: `${progress}%`, transition: "width 1s ease-in-out" }}
+          ></div>
+        </div>
+      )}
+
+      {previewUrl && !analysis && (
         <div className = "mt-3 w-full flex flex-col items-center">
           <div className = "w-full mt-4 md:w-3/4 lg:w-2/3 xl:w-1/2">
             <h3 className = "text-lg font-bold mb-2">PDF Preview:</h3>
@@ -122,31 +142,39 @@ const page = () => {
         </div>
       )}
 
-      {uploading && (
-        <div className="w-96 bg-gray-300 rounded-md mt-3">
-          <div
-            className="bg-green-500 h-10 rounded-md"
-            style={{ width: `${progress}%`, transition: "width 1s ease-in-out" }}
-          ></div>
-        </div>
-      )}
-
-      <button
-        onClick={handleUpload}
-        className="mt-6 bg-custom-gradient px-6 py-2 rounded-lg text-white font-regular"
-        disabled = {uploading}
-      >
-        Submit for Analysis
-      </button>
-
       
 
-      {uploading && <p className = "text-grey-200">Analyzing resume...</p>}
+      {!analysis ? 
+        <button
+          onClick={handleUpload}
+          className="mt-6 bg-custom-gradient px-6 py-2 rounded-lg text-white font-regular"
+          disabled = {uploading}
+        >
+          Submit for Analysis
+        </button> :
+        <button 
+        onClick = {resetFile}
+        className="mt-6 bg-custom-gradient px-6 py-2 rounded-lg text-white font-regular"
+        disabled = {uploading}>
+          Re-Enter File for Analysis
+        </button>
+      }
+
       {analysis && (
         <div className = "mt-4 flex flex-col">
           <h2 className = "text-yellow-400 font-bold text-6xl self-center"> Salary Estimate: ${analysis.salary_estimate}/year</h2>
-          <p className = "analysis text-white-400 mt-6">{analysis.key_insights}</p>
-          <p className = "analysis text-white-400 mt-6">{analysis.improvements}</p>
+          <section className = "flex gap-2 mt-6">
+            <div className = "flex flex-col p-6">
+              <h1 className = "text-white-400 font-bold text-4xl self-center">Key Insights</h1>
+              <p className = "analysis text-white-400 mt-6">{analysis.key_insights}</p>
+            </div>
+            <div className = "flex flex-col p-6">
+              <h1 className = "text-white-400 font-bold text-4xl self-center">What to Improve</h1>
+              <p className = "analysis text-white-400 mt-6">{analysis.improvements}</p>
+            </div>
+          </section>
+          
+          
         </div>
         )}
     </div>
