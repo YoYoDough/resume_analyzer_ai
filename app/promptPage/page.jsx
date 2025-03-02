@@ -130,15 +130,18 @@ const page = () => {
             <div className = "flex flex-col p-6">
               <h1 className = "text-white-400 font-bold text-4xl self-center">Key Insights</h1>
               <ul>
-                {analysis.analysis.key_insights.map(item, i => (
-                  <li>{item[i]}</li>
+                {analysis.analysis.key_insights.map((item) => (
+                  <li className = "analysis text-white-400 mt-6">{item}</li>
                 ))}
               </ul>
-              <p className = "analysis text-white-400 mt-6">{}</p>
             </div>
             <div className = "flex flex-col p-6">
               <h1 className = "text-white-400 font-bold text-4xl self-center">What to Improve</h1>
-              <p className = "analysis text-white-400 mt-6">{}</p>
+              <ul>
+                {analysis.analysis.improvements.map((item) => (
+                  <li className = "analysis text-white-400 mt-6">{item}</li>
+                ))}
+              </ul>
             </div>
           </section>
           
