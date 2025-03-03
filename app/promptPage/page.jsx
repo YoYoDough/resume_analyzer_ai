@@ -78,7 +78,7 @@ const page = () => {
       <p className="text-gray-400 mb-6">AI will analyze your resume and provide insights.</p>
 
       {!previewUrl && <label className="w-96 h-48 flex items-center justify-center border-2 border-dashed border-gray-500 rounded-lg cursor-pointer bg-gray-800 hover:bg-gray-700 transition">
-        <input type="file" className="hidden" accept=".pdf, .doc, .docx" onChange={handleFileChange} />
+        <input type="file" className="hidden" accept=".pdf" onChange={handleFileChange} />
         <span className="text-gray-300">Click or Drag & Drop to Upload Resume in PDF Form</span>
       </label>}
 
