@@ -1,5 +1,6 @@
 "use client"
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 
 const page = () => {
@@ -72,7 +73,7 @@ const page = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen text-white p-6">
-      <Image src = '/resumeimage.png' width = {100} height = {100} alt = "Resume Logo" className = " mb-4 rounded-lg"></Image>
+      <Link href = "/" title="Home Page"><Image src = '/robot.png' width = {100} height = {100} alt = "Resume Logo" className = "bg-white-400 mb-4 rounded-lg"></Image></Link>
       <h1 className="text-3xl font-bold mb-4">Upload Your Resume</h1>
       <p className="text-gray-400 mb-6">AI will analyze your resume and provide insights.</p>
 
@@ -82,10 +83,10 @@ const page = () => {
       </label>}
 
       {uploading && (
-        <div className="w-96 bg-gray-400 rounded-md mt-3">
+        <div className="w-96 rounded-md mt-3">
           <h2>Analysing resume...</h2>
           <div
-            className="bg-green-500 h-10 rounded-md"
+            className="bg-custom-gradient h-4 rounded-md"
             style={{ width: `${progress}%`, transition: "width 1s ease-in-out" }}
           ></div>
         </div>
@@ -110,14 +111,14 @@ const page = () => {
       {!analysis ? 
         <button
           onClick={handleUpload}
-          className="mt-6 bg-custom-gradient px-6 py-2 rounded-lg text-white font-regular"
+          className="mt-6 bg-blue-400 px-6 py-2 rounded-lg text-black font-regular"
           disabled = {uploading}
         >
           Submit for Analysis
         </button> :
         <button 
         onClick = {resetFile}
-        className="mt-6 bg-custom-gradient px-6 py-2 rounded-lg text-white font-regular"
+        className="mt-4 bg-blue-400 px-6 py-2 rounded-lg text-black font-regular"
         disabled = {uploading}>
           Re-Enter File for Analysis
         </button>
@@ -125,21 +126,21 @@ const page = () => {
 
       {analysis && (
         <div className = "mt-4 flex flex-col">
-          <h2 className = "text-yellow-400 font-bold text-6xl self-center"> Salary Estimate: ${analysis.analysis.salary_estimate}/year</h2>
-          <section className = "flex gap-2 mt-6">
-            <div className = "flex flex-col p-6">
+          <span className = "flex justify-center items-center"><h2 className = "text-yellow-400 font-bold text-6xl self-center mr-5"> Salary Estimate: ${analysis.analysis.salary_estimate}/year</h2><Image src = "/cash.png" width = {100} height = {100} alt = "Cash Image"/></span>
+          <section className = "flex mt-6">
+            <div className = "flex flex-col p-12 m-6 rounded border border-white-300">
               <h1 className = "text-white-400 font-bold text-4xl self-center">Key Insights</h1>
               <ul>
-                {analysis.analysis.key_insights.map((item) => (
-                  <li className = "analysis text-white-400 mt-6">{item}</li>
+                {analysis.analysis.key_insights.map((item, i) => (
+                  <li key = {i} className = "analysis text-white-400 mt-6 list-disc">{item}</li>
                 ))}
               </ul>
             </div>
-            <div className = "flex flex-col p-6">
+            <div className = "flex flex-col p-12 m-6 rounded border border-white-300">
               <h1 className = "text-white-400 font-bold text-4xl self-center">What to Improve</h1>
               <ul>
-                {analysis.analysis.improvements.map((item) => (
-                  <li className = "analysis text-white-400 mt-6">{item}</li>
+                {analysis.analysis.improvements.map((item, i) => (
+                  <li key = {i} className = "analysis text-white-400 mt-6 list-disc">{item}</li>
                 ))}
               </ul>
             </div>

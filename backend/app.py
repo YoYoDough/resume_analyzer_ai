@@ -7,6 +7,7 @@ from openai import OpenAI
 import re
 import os
 import json
+import time
 
 # Automatically find and load the .env file from the project root
 load_dotenv(find_dotenv())
@@ -40,8 +41,9 @@ def extract_file(file_path):
 
     return full_resume_text
 
-def analyze_text(resume):
-    # prompt to analyze resume goes here, we're going to use openai.Complete
+import json
+
+def analyze_text(resume, retries=3, delay=2):
     prompt = (
         "Analyze the following resume and return a structured JSON object with three fields: "
         "`key_insights`, `improvements`, and `salary_estimate`.\n\n"
@@ -55,29 +57,35 @@ def analyze_text(resume):
         "Return only the JSON object, without any explanation or formatting."
     )
 
-    try:
-        response = client.chat.completions.create(
-            model=model_name,
-            temperature=1.0,
-            top_p=1.0,
-            max_tokens=1000,
-            messages=[
-                {
-                    "role": "user", 
-                    "content": prompt
-                }
-            ],
-        )
+    for attempt in range(1, retries + 1):
+        try:
+            response = client.chat.completions.create(
+                model="gpt-4o",
+                temperature=1.0,
+                top_p=1.0,
+                max_tokens=800,
+                messages=[{"role": "user", "content": prompt}],
+            )
 
-        result = response.choices[0].message.content.strip()
+            result = response.choices[0].message.content.strip()
 
-        structured_response = json.loads(result)
+            if not result:  
+                raise ValueError("OpenAI returned an empty response")
 
-        return structured_response
+            structured_response = json.loads(result)  # Parse JSON response
+            return structured_response  # Return valid response if successful
 
-    except Exception as e:
-        print(f"Error analyzing text: {e}")
-        return "Error analyzing resume.", "N/A"
+        except json.JSONDecodeError as e:
+            print(f"JSON Error on attempt {attempt}: {e}")
+        except Exception as e:
+            print(f"Error on attempt {attempt}: {e}")
+
+        # If we reach here, retry after a short delay
+        if attempt < retries:
+            print(f"Retrying in {delay} seconds...")
+            time.sleep(delay)
+    
+    return {"error": "OpenAI failed after multiple attempts."}
     
 @app.route('/upload', methods = ["POST"])
 def upload_file():
@@ -98,7 +106,7 @@ def upload_file():
     resume_text = extract_file(file_path)
 
     # Analyze the resume text with OpenAI
-    structured_response = analyze_text(resume_text)
+    structured_response = analyze_text(resume_text, retries=3, delay=2)
 
     # Clean up the temporary file
     os.remove(file_path)
