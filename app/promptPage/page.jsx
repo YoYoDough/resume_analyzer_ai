@@ -126,7 +126,7 @@ const page = () => {
 
       {analysis && (
         <div className = "mt-4 flex flex-col">
-          <span className = "flex justify-center items-center"><h2 className = "text-yellow-400 font-bold text-6xl self-center mr-5"> Salary Estimate: ${analysis.analysis.salary_estimate}/year</h2><Image src = "/cash.png" width = {100} height = {100} alt = "Cash Image"/></span>
+          <div className = "flex justify-center items-center"><h2 className = "text-yellow-400 font-bold text-6xl self-center mr-5"> Salary Estimate: ${analysis.analysis.salary_estimate}/year</h2><Image src = "/cash.png" width = {100} height = {100} alt = "Cash Image"/></div>
           <section className = "flex mt-6">
             <div className = "flex flex-col p-12 m-6 rounded border border-white-300">
               <h1 className = "text-white-400 font-bold text-4xl self-center">Key Insights</h1>
